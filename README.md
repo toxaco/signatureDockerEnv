@@ -53,3 +53,5 @@ docker exec -it signature bash
 	- The pass is: uhCg2Q9VXsCU
 	
 - To use XDebugger you only need to set your IDE to listen to the domain dev.loan.co.uk from port 80 and set the absolute path on the server. (see image bellow for PHPStorm).
+
+![PHPStorm Xdebugger setup](https://user-images.githubusercontent.com/13979220/31448225-d36886a0-ae9b-11e7-8ead-cc0c3b2e37aa.png)

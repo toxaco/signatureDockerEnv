@@ -67,6 +67,7 @@ RUN wget https://raw.githubusercontent.com/composer/getcomposer.org/1b137f8bf6db
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
 RUN apt-get install -y nodejs
 RUN nodejs -v && npm -v
+RUN y|npm i -g webpack && y|npm i -g typescript && y|npm i -g yarn 
 
 # Install vendors
 #RUN chown -R www-data: /var/www/html #make sure this is fine # run a chmod too

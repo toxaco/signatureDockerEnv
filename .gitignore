@@ -1,2 +1,5 @@
 application/*
 !application/.gitignore
+
+jython/*
+!jython/.gitignore

@@ -3,45 +3,58 @@ Simple docker structure to run Signature app.
 
 # Instructions:
 
-1. Download and install docker:
+- Download and install docker:
 ``` 
 https://store.docker.com/search?type=edition&offering=community 
 ```
 
-2. Git clone this repo.
+- Git clone this repo.
 	- Don't forget to add your SSH key (github): https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/
 
-3. Git clone your application inside the folder "application" (the "space" and the "dot" at the end of your git command is important!).
+- Git clone your application inside the folder "application" (the "space" and the "dot" at the end of your git command is important!).
 ```
 git clone ___pastYourUrlHere___ .
 ```
 
-4. Execute this commands from your terminal (this will create your basic structure with proxy, mysql, etc. and start the app): 
+- Execute this commands from your terminal (this will create your basic structure with proxy, mysql, etc. and start the app): 
 ```
 sudo ./provision_dev_docker.sh
 ```
 
-5. Add the code bellow to your local hosts file (Location for Mac users: /etc/hosts).
+- Add the code bellow to your local hosts file (Location for Mac users: /etc/hosts).
 ```
 127.0.0.1       dev.loan.co.uk
 ```
 
-6. Now you can open your browser and type dev.loan.co.uk to start using the app.
+- Set up your MySql database using a previous dump.
+	- In you parameters.yml (signature app) the mysql_host should be: mysql (as it's pointing to the mysql container)
+	- Local Dabase access:
+		- user: root
+		- Pass: root
 
-7. Finnaly don't forget to run from your command line Composer and NPM:
+- Finnaly don't forget to run from your command line Composer and NPM:
+	- Todo: Improve and automate this step in the future. [23/10/2017]
 ```
 
 # Install all the composer dependencies.
 docker exec -i -t signature composer install -o
 
 # Install all NPM modules.
-docker exec -i -t signature "npm i -g webpack && npm i -g typescript && npm i -g yarn && yarn && webpack --watch"
+docker exec -i -t signature y|npm i -g webpack && y|npm i -g typescript && y|npm i -g yarn 
+
+# Ssh inside the machine.
+docker exec -i -t signature bash
+
+# Install all NPM modules
+yarn && webpack --watch
 ```
 
 Obs: If you need to access the machine (a.k.a SSH) for some reason, just type:
 ```
 docker exec -it signature bash
 ```
+
+- Now you can open your browser and type dev.loan.co.uk to start using the app.
 
 # Info
 - Docker will sync any changes from your local files to your virtual machine (containers) automaticaly.

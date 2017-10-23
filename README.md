@@ -9,6 +9,7 @@ https://store.docker.com/search?type=edition&offering=community
 ```
 
 2. Git clone this repo.
+	- Don't forget to add your SSH key (github): https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/
 
 3. Git clone your application inside the folder "application" (the "space" and the "dot" at the end of your git command is important!).
 ```

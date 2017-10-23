@@ -92,6 +92,29 @@ RUN pecl install xdebug \
 RUN echo "Defaults umask=0002" >> /etc/sudoers \
     && echo "Defaults umask_override" >> /etc/sudoers
 
+# Install Java and Jython
+RUN wget -O /tmp/jython.jar http://search.maven.org/remotecontent?filepath=org/python/jython-installer/2.7.0/jython-installer-2.7.0.jar
+RUN apt-get update && apt-get install -y default-jre default-jdk 
+RUN java -jar /tmp/jython.jar -d /opt/jython -s 
+
+#Grab Maven and DMN Engine
+RUN apt install -y maven
+RUN git clone https://github.com/camunda/camunda-engine-dmn /tmp/camunda-engine-dmn
+RUN mvn -f /tmp/camunda-engine-dmn/pom.xml install dependency:copy-dependencies
+
+#Move dependencys
+RUN mkdir /opt/jython/sigde
+RUN mv -v /tmp/camunda-engine-dmn/engine/target/camunda-engine-dmn-7.8.0-SNAPSHOT.jar /opt/jython/sigde/
+RUN mv -v /tmp/camunda-engine-dmn/engine/target/dependency/* /opt/jython/sigde/
+
+#Set Permissions for www.
+RUN if [ ! -d "/opt/jython/cachedir" ]; then mkdir /opt/jython/cachedir; fi
+RUN chown -R www-data:www-data /opt/jython/cachedir && chmod -R g+w /opt/jython/cachedir && chmod -R g+s /opt/jython/cachedir
+RUN if [ ! -d "/opt/jython/sigde" ]; then mkdir /opt/jython/sigde; fi
+RUN chown -R www-data:www-data /opt/jython/sigde && chmod -R g+w /opt/jython/sigde && chmod -R g+s /opt/jython/sigde
+
+
+
 
 COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY config/nginx.conf /etc/nginx/nginx.conf

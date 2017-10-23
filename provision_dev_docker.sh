@@ -27,4 +27,15 @@ docker-compose up -d --build
 cd ./../docker
 docker-compose up -d --build
 
+cd ./../
+# Clone Java jython in jython dir
+if [ -z "$(ls -A ./jython)" ]; then
+	git clone git@gitlab.com:dataconnect/app.loan.co.uk-sigde.git ./jython
+fi
+
+# Clone App in Application dir
+if [ -z "$(ls -A ./application)" ]; then
+	git clone git@gitlab.com:dataconnect/app.loan.co.uk-symfony.git ./application
+fi
+
 echo "----------------------> Dev Ready to work!"

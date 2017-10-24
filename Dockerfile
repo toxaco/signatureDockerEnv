@@ -3,7 +3,8 @@ ENV SSH_KEY id_efc6468efd14481c3db849b88f41b51f
 ARG host=172.18.0.1
 ENV APP_NAME Signature
 WORKDIR /var/www/html
-COPY . /var/www/html
+
+#COPY . /var/www/html
 
 # Install sys deps
 RUN echo "deb http://http.debian.net/debian jessie-backports main" >> /etc/apt/sources.list \
@@ -114,10 +115,11 @@ RUN chown -R www-data:www-data /opt/jython/cachedir && chmod -R g+w /opt/jython/
 RUN if [ ! -d "/opt/jython/sigde" ]; then mkdir /opt/jython/sigde; fi
 RUN chown -R www-data:www-data /opt/jython/sigde && chmod -R g+w /opt/jython/sigde && chmod -R g+s /opt/jython/sigde
 
-COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY config/nginx.conf /etc/nginx/nginx.conf
-EXPOSE 80
-CMD ["/usr/bin/supervisord"]
+# COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# COPY config/nginx.conf /etc/nginx/nginx.conf
+# EXPOSE 80
+# CMD ["/usr/bin/supervisord"]
+CMD ["/usr/bin/bash”]
 
 VOLUME /var/www/html/var/tmp
 VOLUME /var/lib/nginx

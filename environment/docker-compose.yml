@@ -21,7 +21,7 @@ services:
         container_name: memcached
 
     mysql:
-        image: mysql:5.7
+        image: mysql:5.6
         container_name: mysql
         ports:
             - "3306:3306"
@@ -41,7 +41,7 @@ services:
             - ./.data/portainer:/data:cached #for Mac
 
     php:
-        image: toxaco/signature:latest
+        image: toxaco/signaturedockerenv
         container_name: signature
         environment:
             VIRTUAL_HOST:   "dev.loan.co.uk"
@@ -55,4 +55,7 @@ services:
            - ./../application/:/var/www/html:cached #for Mac
            - /etc/localtime:/etc/localtime:cached #for Mac #make sure datetime sync with host.
            - ./config/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf:cached #for Mac
+           - ./config/nginx.conf:/etc/nginx/nginx.conf:cached #for Mac
+        command: 
+           - "/usr/bin/supervisord"
 

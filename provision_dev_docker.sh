@@ -14,6 +14,7 @@ if docker ps --format "{{.Names}}" | grep -q "proxy" ; then
 
 	docker system df
 	docker network create dev
+	printf "\n\n System cleanned up!" 
 fi
 
 # Allow XDebuger to work properly.
@@ -26,7 +27,7 @@ fi
 
 # Start the env. and application.
 cd ./environment
-docker-compose up -d --build
+docker-compose stop && echo y | docker-compose rm && docker-compose up -d --build
 
-printf "\n\n\n ----------------------> Follow next Steps! (like composer install, etc..."
 open http://dev.loan.co.uk/app_dev.php
+printf "\n\n\n ----------------------> Follow next Steps! (like composer install, etc..."

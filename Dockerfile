@@ -114,9 +114,6 @@ RUN chown -R www-data:www-data /opt/jython/cachedir && chmod -R g+w /opt/jython/
 RUN if [ ! -d "/opt/jython/sigde" ]; then mkdir /opt/jython/sigde; fi
 RUN chown -R www-data:www-data /opt/jython/sigde && chmod -R g+w /opt/jython/sigde && chmod -R g+s /opt/jython/sigde
 
-
-
-
 COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY config/nginx.conf /etc/nginx/nginx.conf
 EXPOSE 80
@@ -125,3 +122,7 @@ CMD ["/usr/bin/supervisord"]
 VOLUME /var/www/html/var/tmp
 VOLUME /var/lib/nginx
 VOLUME /tmp
+
+# Remove apt cache to make the image smaller
+RUN rm -rf /var/lib/apt/lists/*
+RUN apt-get purge -y --auto-remove

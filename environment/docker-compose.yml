@@ -14,7 +14,7 @@ services:
             - "443:443"
         volumes:
             - /var/run/docker.sock:/tmp/docker.sock:cached #for Mac
-            - ./nginx-proxy/my_proxy.conf:/etc/nginx/conf.d/my_proxy.conf:cached #for Mac
+            - ./config/my_proxy.conf:/etc/nginx/conf.d/my_proxy.conf:cached #for Mac
             
     memcached:
         image: memcached:latest
@@ -27,7 +27,6 @@ services:
             - "3306:3306"
         volumes:
             - ./.data/mysql:/var/lib/mysql:cached #for Mac
-        restart: always
         environment:
             MYSQL_ROOT_PASSWORD: root
 
@@ -41,16 +40,17 @@ services:
             - ./.data/portainer:/data:cached #for Mac
 
     php:
-        image: toxaco/signaturedockerenv
+        image: toxaco/signaturedockerenv:latest
+        # build: ./
         container_name: signature
         environment:
             VIRTUAL_HOST:   "dev.loan.co.uk"
             PHP_IDE_CONFIG: "serverName=loan.php"
             SSH_AUTH_SOCK:  "/ssh-agent"
             CERT_NAME:      "dev"
-        external_links:
-            - memcached
-            - mysql
+        # external_links:
+        #     - memcached
+        #     - mysql
         volumes:
            - ./../application/:/var/www/html:cached #for Mac
            - /etc/localtime:/etc/localtime:cached #for Mac #make sure datetime sync with host.

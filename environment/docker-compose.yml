@@ -15,10 +15,7 @@ services:
         volumes:
             - /var/run/docker.sock:/tmp/docker.sock:cached #for Mac
             - ./nginx-proxy/my_proxy.conf:/etc/nginx/conf.d/my_proxy.conf:cached #for Mac
-    # redis:
-    #     image: redis:latest
-    #     container_name: redis
-
+            
     memcached:
         image: memcached:latest
         container_name: memcached
@@ -41,5 +38,21 @@ services:
             - "9900:9000"
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock:cached #for Mac
-            - ./portainer:/data:cached #for Mac
+            - ./.data/portainer:/data:cached #for Mac
+
+    php:
+        image: toxaco/signature:latest
+        container_name: signature
+        environment:
+            VIRTUAL_HOST:   "dev.loan.co.uk"
+            PHP_IDE_CONFIG: "serverName=loan.php"
+            SSH_AUTH_SOCK:  "/ssh-agent"
+            CERT_NAME:      "dev"
+        external_links:
+            - memcached
+            - mysql
+        volumes:
+           - ./../application/:/var/www/html:cached #for Mac
+           - /etc/localtime:/etc/localtime:cached #for Mac #make sure datetime sync with host.
+           - ./config/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf:cached #for Mac
 

@@ -19,23 +19,14 @@ fi
 # Allow XDebuger to work properly.
 sudo ifconfig lo0 alias 10.254.254.254
 
-# Start the env.
-cd ./environment
-docker-compose up -d --build
-
-# Start the application.
-cd ./../docker
-docker-compose up -d --build
-
-cd ./../
-# Clone Java jython in jython dir
-if [ -z "$(ls -A ./jython)" ]; then
-	git clone git@gitlab.com:dataconnect/app.loan.co.uk-sigde.git ./jython
-fi
-
 # Clone App in Application dir
-if [ -z "$(ls -A ./application)" ]; then
+if [ "$(ls | grep application)" == "application" ]; then
 	git clone git@gitlab.com:dataconnect/app.loan.co.uk-symfony.git ./application
 fi
 
-echo "----------------------> Dev Ready to work!"
+# Start the env. and application.
+cd ./environment
+docker-compose up -d --build
+
+printf "\n\n\n ----------------------> Follow next Steps! (like composer install, etc..."
+open http://dev.loan.co.uk/app_dev.php

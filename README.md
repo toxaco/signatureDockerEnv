@@ -12,6 +12,7 @@ https://store.docker.com/search?type=edition&offering=community
 	- Don't forget to add your SSH key (github): https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/
 
 - Git clone your application inside the folder "application" (the "space" and the "dot" at the end of your git command is important!).
+	- Or just execute next tep.
 ```
 git clone ___pastYourUrlHere___ .
 ```
@@ -58,13 +59,14 @@ docker exec -it signature bash
 
 # Info
 - Docker will sync any changes from your local files to your virtual machine (containers) automaticaly.
-- By default I set all the "docker-file" files to use a different type of caching that ONLY WORKS ON Mac. If you are going to use it on Linux or Windows then please, update that file by removing all instances of ":cached".
+- By default I set all the "docker-file" files to use a different type of caching that **ONLY WORKS ON Mac**. If you are going to use it on Linux or Windows then please, update that file by removing all instances of ":cached".
 
 # Monitoring and debugging
 
-- From your borwser you can access: localhost:9900/ to open a docker management panel (Portainer). 
+- From your borwser you can access: **http://localhost:9900/** to open a docker management panel (Portainer). 
 	- The User is: admin 
 	- The pass is: uhCg2Q9VXsCU
+	- Or just set your own.
 	
 - To use XDebugger you only need to set your IDE to listen to the domain dev.loan.co.uk from port 80 and set the absolute path on the server. (see image bellow for PHPStorm).
 

@@ -4,6 +4,7 @@
 # $2 = Merge with branch (give branch name)?
 # $3 = Commit Message (to commit)
 # $4 = true to Stash actual changes.
+# $5 = false to not run scripts.
 
 if [ "$(ls | grep app)" == "app" ]; then
 
@@ -15,11 +16,29 @@ if [ "$(ls | grep app)" == "app" ]; then
 
 	# Add all and commit using message.
 	if [ "${3:-false}" != false ]; then
-		git add -A
-		git commit -am "$3"
-		git pull origin `git symbolic-ref --short -q HEAD`
-		git push origin `git symbolic-ref --short -q HEAD`
-		printf "\n\n Congratulations! Your code has been pushed to" `git symbolic-ref --short -q HEAD` "\n\n"
+		gitBranch=`git symbolic-ref --short -q HEAD`
+		branch="${gitBranch//[[:space:]]/}"
+
+		if [[ $branch = *[!\ ]* ]]; then
+			git status
+			git add -A
+			git commit -am "$3"
+			git pull origin $branch
+
+			# Merge origin to develop
+			if [ ${2:-false} != false ]; then
+				git checkout $2
+				git pull origin $2
+				git checkout $branch
+				git merge origin $2
+				printf "\n\n Branch $branch is now merge with $2 \n\n"
+			fi
+
+			git push origin $branch
+			printf "\n\n Congratulations! Your code has been pushed to $branch \n\n"
+		else
+			printf "\n\n There is no branch to work on!!! \n\n $branch"
+		fi
 	fi
 
 	# Checkout to another branch.
@@ -33,34 +52,49 @@ if [ "$(ls | grep app)" == "app" ]; then
 			git checkout $1
 			git pull origin $1
 			git merge origin $2
-			printf "\n\n Branch" $1 "is now merge with " $2 " \n\n"
+			printf "\n\n Branch $1 is now merge with $2 \n\n"
 
 		else
 			git checkout $1
 			git pull origin $1
 		fi
 		
-		rm -Rf ./var/cache/dev
-		rm -Rf ./var/cache/prod
+		if [ ${5:-true} != true ]; then
+			rm -Rf ./var/cache/dev
+			rm -Rf ./var/cache/prod
 
-		docker exec -it signature composer install -o --no-scripts && yarn --emoji=true -s && webpack --progress --cache
-		docker exec -it signature y|php bin/console doctrine:migrations:migrate
+			docker exec -it signature bash -c 'composer install -o && echo y | php bin/console doctrine:migrations:migrate'
 
-		rm -Rf ./var/cache/dev
-		rm -Rf ./var/cache/prod
+			# Keep watching for changes with Webpack.
+			docker exec -i -d signature bash -c 'yarn --emoji=true -s && webpack --watch'
 
-		printf "\n\n Welcome to branch: " $1 " \n\n"
+			rm -Rf ./var/cache/dev
+			rm -Rf ./var/cache/prod
+
+			# Release memory and CPU by killing all process.
+			docker restart -t 30 signature
+		fi
+
+		printf "\n\n Welcome to branch: $1 \n\n"
+		sleep 30s
+		
+		# Try to access to warm up the cache.
 		open http://dev.loan.co.uk/app_dev.php/case
 	fi
 
-	printf "\n\n Available arguments:"
+	git status
+	git branch
+
+	printf "\n Available arguments:"
 	printf "\n 1. branch_name (checkout)"
 	printf "\n 2. branch_name (merge with first branch)"
 	printf "\n 3. commit message (to commit current branch)"
 	printf "\n 4. true to stash changes on current branch. \n"
+	printf "\n 5. false to not run scripts. \n"
 	
 else
-	printf "Error: app (symfony) folder is not in this directory (try 'ls -al | grep app'):" `pwd`
+	printf "Error: app (symfony) folder is not in this directory (try: ls -al | grep app):" 
+	echo pwd
 fi
 
 

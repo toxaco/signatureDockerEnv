@@ -21,13 +21,16 @@ fi
 sudo ifconfig lo0 alias 10.254.254.254
 
 # Clone App in Application dir
-if [ "$(ls | grep application)" == "application" ]; then
+if [ "$(ls | grep application)" == "application" ] && [ "$(ls -A ./application)" -eq "" ]; then
 	git clone git@gitlab.com:dataconnect/app.loan.co.uk-symfony.git ./application
+else
+	echo "Application folder is not empty!"
 fi
 
 # Start the env. and application.
 cd ./environment
 docker-compose stop && echo y | docker-compose rm && docker-compose up -d --build
 
+sleep 40s
 open http://dev.loan.co.uk/app_dev.php
 printf "\n\n\n ----------------------> Follow next Steps! (like composer install, etc..."

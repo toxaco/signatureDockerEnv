@@ -51,8 +51,7 @@ services:
             BLACKFIRE_SERVER_TOKEN: "ed714c208eae8d61075e432b02f86bb29d518f5c7813c277f29e2d694ca4a0d3"
 
     php:
-        # image: toxaco/signaturedockerenv:latest
-        build: ./
+        image: toxaco/signaturedockerenv:latest
         container_name: signature
         environment:
             VIRTUAL_HOST:   "dev.loan.co.uk"

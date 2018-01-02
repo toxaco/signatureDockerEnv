@@ -39,9 +39,20 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock:cached #for Mac
             - ./.data/portainer:/data:cached #for Mac
 
+    blackfire:
+        image: blackfire/blackfire
+        container_name: blackfire
+        ports:
+            - "8707:8707"
+        environment:
+            BLACKFIRE_CLIENT_ID: "47aba20d-ba22-4160-b16a-e87f8bb55d38"
+            BLACKFIRE_CLIENT_TOKEN: "c5b80eebaab1ad94c85368d0955a653ebb8d60469fa868db6aaafdc0b2e0493e"
+            BLACKFIRE_SERVER_ID: "26ee3109-d139-4bc6-bccd-68276b85596e"
+            BLACKFIRE_SERVER_TOKEN: "ed714c208eae8d61075e432b02f86bb29d518f5c7813c277f29e2d694ca4a0d3"
+
     php:
-        image: toxaco/signaturedockerenv:latest
-        # build: ./
+        # image: toxaco/signaturedockerenv:latest
+        build: ./
         container_name: signature
         environment:
             VIRTUAL_HOST:   "dev.loan.co.uk"
@@ -51,6 +62,8 @@ services:
         # external_links:
         #     - memcached
         #     - mysql
+        ports:
+            - "24890:24890"
         volumes:
            - ./../application/:/var/www/html:cached #for Mac
            # - /etc/localtime:/etc/localtime:cached #for Mac #make sure datetime sync with host.

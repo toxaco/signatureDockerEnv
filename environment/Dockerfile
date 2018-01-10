@@ -29,7 +29,9 @@ RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-di
 RUN docker-php-ext-install -j$(nproc) gd
 
 # Install php libraries
-RUN docker-php-ext-enable opcache && docker-php-ext-install \
+RUN pecl install mailparse
+RUN docker-php-ext-enable opcache mailparse 
+RUN docker-php-ext-install \
         bcmath \
         mcrypt \
         mysqli \

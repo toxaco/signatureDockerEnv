@@ -78,3 +78,12 @@ docker exec -it signature bash
 Articles that explain how to speed up your docker on MAC:
 - https://medium.com/@TomKeur/how-get-better-disk-performance-in-docker-for-mac-2ba1244b5b70
 - https://github.com/docker/compose/issues/3419#issuecomment-221793401
+
+# Public Remote Access (for tests)
+
+Using https://ngrok.com/ you can open your port 80 to the world and allow other people to access the main applicantion. Just download the ngrok file, then run the command bellow:
+
+```
+./ngrok http dev.loan.co.uk:80 -host-header=dev.loan.co.uk
+```
+P.S. If you need to secure it, use: '-auth="username:password"'

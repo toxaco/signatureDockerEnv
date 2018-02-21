@@ -1,4 +1,4 @@
-FROM php:7.1-fpm
+FROM php:7.2.2-fpm
 ENV SSH_KEY id_efc6468efd14481c3db849b88f41b51f
 ARG host=172.18.0.1
 ENV APP_NAME Signature
@@ -14,7 +14,7 @@ RUN echo "deb http://http.debian.net/debian jessie-backports main" >> /etc/apt/s
 	libxml2-dev \
 	libfreetype6-dev \
 	libjpeg62-turbo-dev \
-	libpng12-dev \
+	libpng-dev \
         libmemcached-dev \
         nginx-light \
         ssh-client \
@@ -33,7 +33,6 @@ RUN pecl install mailparse
 RUN docker-php-ext-enable opcache mailparse 
 RUN docker-php-ext-install \
         bcmath \
-        mcrypt \
         mysqli \
         pcntl \
         pdo \
@@ -41,6 +40,9 @@ RUN docker-php-ext-install \
         zip \
 	gd \
 	soap 
+
+RUN yes '' | pecl install -f mcrypt
+RUN echo "extension=mcrypt.so" > /usr/local/etc/php/conf.d/mcrypt.ini
 	
 RUN apt-get clean -y
 
@@ -86,9 +88,9 @@ RUN wget https://raw.githubusercontent.com/composer/getcomposer.org/1b137f8bf6db
  
 
 # Install node and npm
-RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
+RUN apt-get update && apt-get install -my wget gnupg
+RUN curl -sL https://deb.nodesource.com/setup_9.x | bash -
 RUN apt-get install -y nodejs
-RUN nodejs -v && npm -v
 RUN y|npm i -g webpack && y|npm i -g typescript && y|npm i -g yarn 
 
 # Configure sudoers for better dev experience ;-)

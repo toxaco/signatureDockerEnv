@@ -21,7 +21,7 @@ services:
     #     container_name: memcached
 
     mysql:
-        image: mysql:5.6
+        image: mysql:5.7
         container_name: mysql
         ports:
             - "3306:3306"

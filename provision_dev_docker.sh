@@ -48,7 +48,8 @@ case ${restart:0:1} in y|Y )
 esac
 
 # Start docker env.
-docker-compose up -d --build --remove-orphans --quiet && sleep 180s
+docker-compose up -d --force-recreate --build --remove-orphans
+sleep 180s
 
 # Execute scripts and install packages.
 case ${run_packages:0:1} in y|Y )

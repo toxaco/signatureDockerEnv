@@ -15,11 +15,6 @@ services:
         volumes:
             - /var/run/docker.sock:/tmp/docker.sock:cached #for Mac
             - ./config/my_proxy.conf:/etc/nginx/conf.d/my_proxy.conf:cached #for Mac
-            
-    # memcached:
-    #     image: memcached:latest
-    #     container_name: memcached
-
     mysql:
         image: mysql:5.7
         container_name: mysql
@@ -27,6 +22,8 @@ services:
             - "3306:3306"
         volumes:
             - ./.data/mysql:/var/lib/mysql:cached #for Mac
+            # Ensure MySql 5.7 is running in "disable strict SQL mod". [03/2018]
+            - ./config/mysqlConfig/:/etc/mysql/conf.d/:cached #for Mac
         environment:
             MYSQL_ROOT_PASSWORD: root
 
@@ -39,35 +36,40 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock:cached #for Mac
             - ./.data/portainer:/data:cached #for Mac
 
-    blackfire:
-        image: blackfire/blackfire
-        container_name: blackfire
-        ports:
-            - "8707:8707"
-        environment:
-            BLACKFIRE_CLIENT_ID: "47aba20d-ba22-4160-b16a-e87f8bb55d38"
-            BLACKFIRE_CLIENT_TOKEN: "c5b80eebaab1ad94c85368d0955a653ebb8d60469fa868db6aaafdc0b2e0493e"
-            BLACKFIRE_SERVER_ID: "26ee3109-d139-4bc6-bccd-68276b85596e"
-            BLACKFIRE_SERVER_TOKEN: "ed714c208eae8d61075e432b02f86bb29d518f5c7813c277f29e2d694ca4a0d3"
+    # blackfire:
+    #     image: blackfire/blackfire
+    #     container_name: blackfire
+    #     ports:
+    #         - "8707:8707"
+    #     environment:
+    #         BLACKFIRE_CLIENT_ID: "47aba20d-ba22-4160-b16a-e87f8bb55d38"
+    #         BLACKFIRE_CLIENT_TOKEN: "c5b80eebaab1ad94c85368d0955a653ebb8d60469fa868db6aaafdc0b2e0493e"
+    #         BLACKFIRE_SERVER_ID: "26ee3109-d139-4bc6-bccd-68276b85596e"
+    #         BLACKFIRE_SERVER_TOKEN: "ed714c208eae8d61075e432b02f86bb29d518f5c7813c277f29e2d694ca4a0d3"
 
     mautic:
         image: toxaco/signaturedockerenv:latest
         container_name: mautic
         environment:
             VIRTUAL_HOST:   "mautic.loan.co.uk"
+            PHP_IDE_CONFIG: "serverName=mautic.php"
+            SSH_AUTH_SOCK:  "/ssh-agent"
+            CERT_NAME:      "dev"
+        volumes:
+           - ./../mautic/:/var/www/html:cached #for Mac
+           - ./config/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf:cached #for Mac
+           - ./config/nginx.conf:/etc/nginx/nginx.conf:cached #for Mac
+        command:
+           - "/usr/bin/supervisord"
 
     php:
         image: toxaco/signaturedockerenv:latest
-        #build: ./
         container_name: signature
         environment:
             VIRTUAL_HOST:   "dev.loan.co.uk"
             PHP_IDE_CONFIG: "serverName=loan.php"
             SSH_AUTH_SOCK:  "/ssh-agent"
             CERT_NAME:      "dev"
-        # external_links:
-        #     - memcached
-        #     - mysql
         ports:
             - "24890:24890"
         volumes:

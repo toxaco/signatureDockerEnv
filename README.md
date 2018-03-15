@@ -1,6 +1,8 @@
 # Signature Docker Env
 Simple docker structure to run Signature app.
 
+- Now using SSL by default.
+
 # Instructions:
 
 - Download and install docker:
@@ -35,20 +37,6 @@ sudo ./provision_dev_docker.sh
 
 - Finnaly don't forget to run from your command line Composer and NPM:
 	- Todo: Improve and automate this step in the future. [23/10/2017]
-```
-
-# Install all the composer dependencies.
-docker exec -i -t signature composer install -o
-
-# Install all NPM modules.
-docker exec -i -t signature y|npm i -g webpack && y|npm i -g typescript && y|npm i -g yarn 
-
-# Ssh inside the machine.
-docker exec -i -t signature bash
-
-# Install all NPM modules
-yarn && webpack --watch
-```
 
 Obs: If you need to access the machine (a.k.a SSH) for some reason, just type:
 ```

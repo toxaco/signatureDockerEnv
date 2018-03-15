@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
-sudo echo "Welcome to the setup. \n\n"
-read -p 'reset env (used to apply new images or updates)? (y/n) ' reset_env
-read -p 'restart compose (used to apply updates)? (y/n) ' restart
-read -p 'git pull actual branch? (y/n) ' git_pull
-read -p 'run packages? (webpack, yarn, etc) (y/n) ' run_packages
+sudo echo "Welcome to the setup. (Max exec time is ~10min) \n\n"
+
+read -p '[environment] Reset env (used to apply new images or updates)? (y/n) ' reset_env
+read -p '[environment] Restart compose (used to apply updates)? (y/n) ' restart
+read -p '[environment] Generate new dev ssl certificates? (y/n) ' generate_certs
+read -p '[application] Git pull actual branch? (y/n) ' git_pull
+read -p '[application] Run scripts? (webpack, yarn, etc) (y/n) ' run_packages
 
 # Completely clean docker env.
 case ${reset_env:0:1} in y|Y )
@@ -41,23 +43,28 @@ rm -Rf ./application/var/cache/*
 
 cd ./environment
 
+# Generate new local certificates.
+case ${generate_certs:0:1} in y|Y )
+	mkdir ./cert
+	openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./cert/dev.key -out ./cert/dev.crt -subj "/C=UK/ST=London/L=Leamington/O=Loan.co.uk/OU=IT Department/CN=dev.loan.co.uk"
+esac
+
 # Refresh docker containers.
 case ${restart:0:1} in y|Y )
 	docker-compose stop 
-	echo y | docker-compose rm -f
+	echo y | docker-compose rm -f $(docker ps -a -q)
 esac
 
 # Start docker env.
-docker-compose up -d --force-recreate --build --remove-orphans
-sleep 180s
+docker-compose up -d --build --force-recreate --remove-orphans
 
 # Execute scripts and install packages.
 case ${run_packages:0:1} in y|Y )
-	docker exec -it signature sh -c "yarn && npx webpack && echo y | php bin/console doctrine:migrations:migrate" && sleep 180s
+	docker exec -id signature sh -c "yarn && npx webpack && echo y | php bin/console doctrine:migrations:migrate" && sleep 180s
 	docker exec -id signature sh -c "composer install" && sleep 120s
 	rm -Rf ./../application/var/cache/*
 esac
 
 # Wait to have the build finished the open app to cache dev.
-open http://dev.loan.co.uk/app_dev.php
+open https://dev.loan.co.uk/app_dev.php
 printf "\n\n\n Ready! enjoy your day."

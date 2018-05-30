@@ -1,7 +1,7 @@
 # Signature Docker Env
 Simple docker structure to run Signature app.
 
-- Now using SSL by default.
+- Now using SSL (not by default, check provision_dev_docker.sh).
 
 # Instructions:
 
@@ -29,25 +29,24 @@ sudo ./provision_dev_docker.sh
 127.0.0.1       dev.loan.co.uk
 ```
 
-- Set up your MySql database using a previous dump.
+- Set up your MySql/Maria database using a previous dump.
 	- In you parameters.yml (signature app) the mysql_host should be: mysql (as it's pointing to the mysql container)
 	- Local Dabase access:
 		- user: root
 		- Pass: root
 
 - Finnaly don't forget to run from your command line Composer and NPM:
-	- Todo: Improve and automate this step in the future. [23/10/2017]
 
 Obs: If you need to access the machine (a.k.a SSH) for some reason, just type:
 ```
 docker exec -it signature bash
 ```
 
-- Now you can open your browser and type dev.loan.co.uk to start using the app.
+- Now you can open your browser and type dev.loan.co.uk/app_dev.php/ to start using the app.
 
 # Info
 - Docker will sync any changes from your local files to your virtual machine (containers) automaticaly.
-- By default I set all the "docker-file" files to use a different type of caching that **ONLY WORKS ON Mac**. If you are going to use it on Linux or Windows then please, update that file by removing all instances of ":cached".
+- By default I set all the "docker-file" files to use a different type of caching that **ONLY WORKS ON Mac**. If you are going to use it on Linux or Windows then please, update that file by removing all instances of **":cached"**.
 
 # Monitoring and debugging
 
@@ -59,7 +58,7 @@ docker exec -it signature bash
 - To use XDebugger you only need to set your IDE to listen to the domain dev.loan.co.uk from port 80 and set the absolute path on the server. (see image bellow for PHPStorm).
 
 ![PHPStorm Xdebugger setup](https://user-images.githubusercontent.com/13979220/31448225-d36886a0-ae9b-11e7-8ead-cc0c3b2e37aa.png)
-
+## Note that since may 2018 XDebugger has been removed from the default image. You will need to change the DockerFile to install that extension so you can use PHPStorm Debugger.
 
 # Speed Up
 

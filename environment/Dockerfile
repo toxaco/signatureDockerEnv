@@ -10,11 +10,12 @@ RUN echo "deb http://http.debian.net/debian jessie-backports main" >> /etc/apt/s
      && apt-get update && apt-get install -y \
         git \
         vim \
+        htop \
         libmcrypt-dev \
-	libxml2-dev \
-	libfreetype6-dev \
-	libjpeg62-turbo-dev \
-	libpng-dev \
+        libxml2-dev \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        libpng-dev \
         libmemcached-dev \
         nginx-light \
         ssh-client \
@@ -22,11 +23,14 @@ RUN echo "deb http://http.debian.net/debian jessie-backports main" >> /etc/apt/s
         wget \
         zip \
         zlib1g-dev \
-	poppler-utils
+        libicu-dev \
+        g++ \
+	    poppler-utils
 
 RUN apt-get clean -y && rm /var/lib/apt/lists/*.* 
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
 RUN docker-php-ext-install -j$(nproc) gd
+RUN docker-php-ext-configure intl
 
 # Install php libraries
 RUN pecl install mailparse
@@ -38,12 +42,12 @@ RUN docker-php-ext-install \
         pdo \
         pdo_mysql \
         zip \
-	gd \
-	soap 
+        gd \
+        soap \
+        intl
 
 RUN yes '' | pecl install -f mcrypt
 RUN echo "extension=mcrypt.so" > /usr/local/etc/php/conf.d/mcrypt.ini
-	
 RUN apt-get clean -y
 
 # Setup php
@@ -67,17 +71,17 @@ RUN curl -L -o /tmp/memcached.tar.gz "https://github.com/php-memcached-dev/php-m
 RUN wget https://raw.githubusercontent.com/composer/getcomposer.org/1b137f8bf6db3e79a38a5bc45324414a6b1f9df2/web/installer -O - -q | php -- && cp composer.phar /usr/local/bin/composer
 
 # Install xdebug
- RUN pecl install xdebug \
-     && docker-php-ext-enable xdebug \
-     && sed -i '1 a xdebug.remote_autostart=true' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-     && sed -i '1 a xdebug.idekey=phpstorm' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-     && sed -i '1 a xdebug.remote_mode=req' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-     && sed -i '1 a xdebug.remote_handler=dbgp' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-     && sed -i '1 a xdebug.remote_connect_back=0 ' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-     && sed -i '1 a xdebug.remote_port=9000' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-     && sed -i '1 a xdebug.remote_host=10.254.254.254' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-     && sed -i '1 a xdebug.remote_enable=1' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-     && sed -i '1 a xdebug.max_nesting_level=500' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+# RUN pecl install xdebug \
+#      && docker-php-ext-enable xdebug \
+#      && sed -i '1 a xdebug.remote_autostart=true' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+#      && sed -i '1 a xdebug.idekey=phpstorm' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+#      && sed -i '1 a xdebug.remote_mode=req' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+#      && sed -i '1 a xdebug.remote_handler=dbgp' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+#      && sed -i '1 a xdebug.remote_connect_back=0 ' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+#      && sed -i '1 a xdebug.remote_port=9000' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+#      && sed -i '1 a xdebug.remote_host=10.254.254.254' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+#      && sed -i '1 a xdebug.remote_enable=1' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+#      && sed -i '1 a xdebug.max_nesting_level=500' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 # Install Blackfire [11/2017]
 # RUN version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \
@@ -85,7 +89,6 @@ RUN wget https://raw.githubusercontent.com/composer/getcomposer.org/1b137f8bf6db
 #     && tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp \
 #     && mv /tmp/blackfire-*.so $(php -r "echo ini_get('extension_dir');")/blackfire.so \
 #     && printf "extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8707\n" > $PHP_INI_DIR/conf.d/blackfire.ini
- 
 
 # Install node and npm
 RUN apt-get update && apt-get install -my wget gnupg

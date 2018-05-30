@@ -19,7 +19,7 @@ services:
         volumes:
             - /var/run/docker.sock:/tmp/docker.sock:cached #for Mac
             - ./config/my_proxy.conf:/etc/nginx/conf.d/my_proxy.conf:cached #for Mac
-            - ./cert/:/etc/nginx/certs #Update Dockerfile as well to make sure websockets works
+            # - ./cert/:/etc/nginx/certs #Update Dockerfile as well to make sure websockets works
     mysql:
         image: mysql:5.7
         container_name: mysql
@@ -29,6 +29,19 @@ services:
             - ./.data/mysql:/var/lib/mysql:cached #for Mac
             # Ensure MySql 5.7 is running in "disable strict SQL mod". [03/2018]
             - ./config/mysqlConfig/:/etc/mysql/conf.d/:cached #for Mac
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+
+    mariadb:
+        image: mariadb
+        container_name: mariadb
+        restart: always
+        ports:
+            - "3307:3306"
+        volumes:
+            - ./.data/mariadb:/var/lib/mysql:cached #for Mac
+            # Ensure MySql 5.7 is running in "disable strict SQL mod". [03/2018]
+            # - ./config/mysqlConfig/:/etc/mysql/conf.d/:cached #for Mac
         environment:
             MYSQL_ROOT_PASSWORD: root
 
@@ -57,22 +70,9 @@ services:
            - ./../application/:/var/www/html:cached #for Mac
            - ./config/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf:cached #for Mac
            - ./config/nginx.conf:/etc/nginx/nginx.conf:cached #for Mac
-           - ./cert/:/etc/nginx/certs
+           # - ./cert/:/etc/nginx/certs
+           # - ./config/crontab:/etc/crontab:cached #for Mac
         command: 
-           - "/usr/bin/supervisord"
-
-    mautic:
-        image: toxaco/signaturedockerenv:latest
-        container_name: mautic
-        environment:
-            VIRTUAL_HOST:   "mautic.loan.co.uk"
-            PHP_IDE_CONFIG: "serverName=mautic.php"
-            CERT_NAME:      "dev"
-        volumes:
-           - ./../mautic/:/var/www/html:cached #for Mac
-           - ./config/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf:cached #for Mac
-           - ./config/nginx.conf:/etc/nginx/nginx.conf:cached #for Mac
-        command:
            - "/usr/bin/supervisord"
 
     # blackfire:

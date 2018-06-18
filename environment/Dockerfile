@@ -25,9 +25,9 @@ RUN echo "deb http://http.debian.net/debian jessie-backports main" >> /etc/apt/s
         zlib1g-dev \
         libicu-dev \
         g++ \
-	    poppler-utils
+	    poppler-utils \
+	    pdftk # Install pdftk - Vas requested on the 18/06/2018
 
-RUN apt-get clean -y && rm /var/lib/apt/lists/*.* 
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
 RUN docker-php-ext-install -j$(nproc) gd
 RUN docker-php-ext-configure intl

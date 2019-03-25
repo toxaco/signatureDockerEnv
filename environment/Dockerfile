@@ -34,7 +34,7 @@ RUN docker-php-ext-configure intl
 
 # Install php libraries
 RUN pecl install mailparse
-RUN docker-php-ext-enable opcache mailparse 
+RUN docker-php-ext-enable opcache mailparse
 RUN docker-php-ext-install \
         bcmath \
         mysqli \
@@ -92,9 +92,9 @@ RUN wget https://raw.githubusercontent.com/composer/getcomposer.org/1b137f8bf6db
 
 # Install node and npm
 RUN apt-get update && apt-get install -my wget gnupg
-RUN curl -sL https://deb.nodesource.com/setup_9.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
 RUN apt-get install -y nodejs
-RUN y|npm i -g webpack && y|npm i -g typescript && y|npm i -g yarn 
+RUN y|npm i -g webpack && y|npm i -g typescript && y|npm i -g yarn
 
 # Configure sudoers for better dev experience ;-)
 RUN echo "Defaults umask=0002" >> /etc/sudoers \

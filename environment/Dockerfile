@@ -1,13 +1,18 @@
-FROM php:7.2.2-fpm
+FROM php:7.3-fpm-stretch
 ENV SSH_KEY id_efc6468efd14481c3db849b88f41b51f
 ARG host=172.18.0.1
 ENV APP_NAME Signature
 WORKDIR /var/www/html
 
 # Install sys deps
-RUN echo "deb http://http.debian.net/debian jessie-backports main" >> /etc/apt/sources.list \
-     && echo 'APT::Install-Recommends "0";' > /etc/apt/apt.conf.d/99norecommends \
-     && apt-get update && apt-get install -y \
+RUN echo "deb http://deb.debian.org/debian stretch main multiverse non-free\
+deb http://security.debian.org/debian-security stretch/updates main non-free\
+deb http://deb.debian.org/debian stretch-updates main non-free\
+deb http://deb.debian.org/debian stretch-backports main non-free\
+deb http://http.us.debian.org/debian stable main contrib non-free" > /etc/apt/sources.list
+
+RUN apt-get update && apt-get install -y \
+        ttf-mscorefonts-installer \
         git \
         vim \
         htop \
@@ -16,21 +21,23 @@ RUN echo "deb http://http.debian.net/debian jessie-backports main" >> /etc/apt/s
         libfreetype6-dev \
         libjpeg62-turbo-dev \
         libpng-dev \
-        libmemcached-dev \
         nginx-light \
         ssh-client \
         supervisor \
         wget \
         zip \
         zlib1g-dev \
+        libzip-dev \
         libicu-dev \
         g++ \
-	    poppler-utils \
-	    pdftk # Install pdftk - Vas requested on the 18/06/2018
+	    poppler-utils
 
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
 RUN docker-php-ext-install -j$(nproc) gd
 RUN docker-php-ext-configure intl
+
+# Install Java
+RUN mkdir /usr/share/man/man1 && apt-get install -y openjdk-8-jdk
 
 # Install php libraries
 RUN pecl install mailparse
@@ -51,24 +58,23 @@ RUN echo "extension=mcrypt.so" > /usr/local/etc/php/conf.d/mcrypt.ini
 RUN apt-get clean -y
 
 # Setup php
-RUN echo "date.timezone=UTC" >  /usr/local/etc/php/conf.d/timezone.ini
-RUN echo "upload_max_filesize = 10M;" > /usr/local/etc/php/conf.d/uploads.ini \
-    && echo "post_max_size = 11M;" >> /usr/local/etc/php/conf.d/uploads.ini
+RUN echo "date.timezone=Europe/London" >>  /usr/local/etc/php/conf.d/signature.ini
+RUN echo "opcache.enable=1" >>  /usr/local/etc/php/conf.d/signature.ini
+RUN echo "opcache.max_accelerated_files=32531" >>  /usr/local/etc/php/conf.d/signature.ini
+RUN echo "opcache.memory_consumption=512" >>  /usr/local/etc/php/conf.d/signature.ini
+RUN echo "upload_max_filesize = 10M" >>  /usr/local/etc/php/conf.d/signature.ini
+RUN echo "post_max_size = 11M" >>  /usr/local/etc/php/conf.d/signature.ini
+RUN echo "memory_limit = 512M" >>  /usr/local/etc/php/conf.d/signature.ini
+
 
 # Install APCu
 RUN pecl install apcu
 RUN echo "extension=apcu.so" > /usr/local/etc/php/conf.d/apcu.ini
 
-# Install Memcached for php 7
-RUN curl -L -o /tmp/memcached.tar.gz "https://github.com/php-memcached-dev/php-memcached/archive/php7.tar.gz" \
-    && mkdir -p /usr/src/php/ext/memcached \
-    && tar -C /usr/src/php/ext/memcached -zxvf /tmp/memcached.tar.gz --strip 1 \
-    && docker-php-ext-configure memcached \
-    && docker-php-ext-install memcached \
-    && rm /tmp/memcached.tar.gz
-
 # Install composer
-RUN wget https://raw.githubusercontent.com/composer/getcomposer.org/1b137f8bf6db3e79a38a5bc45324414a6b1f9df2/web/installer -O - -q | php -- && cp composer.phar /usr/local/bin/composer
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+RUN chmod +x /bin/composer
+RUN composer global require hirak/prestissimo
 
 # Install xdebug
 # RUN pecl install xdebug \
@@ -94,7 +100,7 @@ RUN wget https://raw.githubusercontent.com/composer/getcomposer.org/1b137f8bf6db
 RUN apt-get update && apt-get install -my wget gnupg
 RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
 RUN apt-get install -y nodejs
-RUN y|npm i -g webpack && y|npm i -g typescript && y|npm i -g yarn
+RUN npm i -g webpack && npm i -g typescript && npm i -g yarn 
 
 # Configure sudoers for better dev experience ;-)
 RUN echo "Defaults umask=0002" >> /etc/sudoers \

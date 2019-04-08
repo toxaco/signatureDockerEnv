@@ -5,11 +5,26 @@ ENV APP_NAME Signature
 WORKDIR /var/www/html
 
 # Install sys deps
-RUN echo "deb http://deb.debian.org/debian stretch main multiverse non-free\
-deb http://security.debian.org/debian-security stretch/updates main non-free\
-deb http://deb.debian.org/debian stretch-updates main non-free\
-deb http://deb.debian.org/debian stretch-backports main non-free\
-deb http://http.us.debian.org/debian stable main contrib non-free" > /etc/apt/sources.list
+RUN echo "deb http://deb.debian.org/debian stretch main multiverse non-free"  > /etc/apt/sources.list && \
+echo "deb http://security.debian.org/debian-security stretch/updates main non-free" >> /etc/apt/sources.list && \
+echo "deb http://deb.debian.org/debian stretch-updates main non-free " >> /etc/apt/sources.list && \
+echo "deb http://deb.debian.org/debian stretch-backports main non-free" >> /etc/apt/sources.list && \
+echo "deb http://http.us.debian.org/debian stable main contrib non-free" >> /etc/apt/sources.list
+
+
+# Install node and npm
+RUN apt-get update && apt-get install -my wget gnupg
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
+RUN apt-get install -y nodejs
+RUN npm i -g webpack && npm i -g typescript && npm i -g yarn
+
+# Install specific version of Node (8.11.3)
+ENV NVM_DIR /usr/local/nvm
+RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.1/install.sh | bash
+ENV NODE_VERSION v8.11.3 
+RUN /bin/bash -c "source $NVM_DIR/nvm.sh && nvm install $NODE_VERSION && nvm use --delete-prefix $NODE_VERSION"
+ENV NODE_PATH $NVM_DIR/versions/node/$NODE_VERSION/lib/node_modules
+ENV PATH      $NVM_DIR/versions/node/$NODE_VERSION/bin:$PATH
 
 # PDFTK
 RUN mkdir /usr/share/man/man1 
@@ -37,7 +52,7 @@ RUN apt-get update && apt-get install -y \
         libzip-dev \
         libicu-dev \
         g++ \
-	    poppler-utils \
+        poppler-utils \
         openjdk-8-jdk \
         libgd3 \
         libgd-dev
@@ -62,13 +77,13 @@ RUN echo "extension=mcrypt.so" > /usr/local/etc/php/conf.d/mcrypt.ini
 RUN apt-get clean -y
 
 # Setup PHP ini configs
-RUN echo "date.timezone=Europe/London" >>  /usr/local/etc/php/conf.d/signature.ini
-RUN echo "opcache.enable=1" >>  /usr/local/etc/php/conf.d/signature.ini
-RUN echo "opcache.max_accelerated_files=32531" >>  /usr/local/etc/php/conf.d/signature.ini
-RUN echo "opcache.memory_consumption=512" >>  /usr/local/etc/php/conf.d/signature.ini
-RUN echo "upload_max_filesize = 10M" >>  /usr/local/etc/php/conf.d/signature.ini
-RUN echo "post_max_size = 11M" >>  /usr/local/etc/php/conf.d/signature.ini
-RUN echo "memory_limit = 512M" >>  /usr/local/etc/php/conf.d/signature.ini
+RUN echo "date.timezone=Europe/London" > /usr/local/etc/php/conf.d/signature.ini && \
+echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/signature.ini && \
+echo "opcache.max_accelerated_files=32531" >> /usr/local/etc/php/conf.d/signature.ini && \
+echo "opcache.memory_consumption=512" >> /usr/local/etc/php/conf.d/signature.ini && \
+echo "upload_max_filesize = 10M" >>  /usr/local/etc/php/conf.d/signature.ini && \
+echo "post_max_size = 11M" >> /usr/local/etc/php/conf.d/signature.ini && \
+echo "memory_limit = 512M" >> /usr/local/etc/php/conf.d/signature.ini
 
 # Install APCu
 RUN pecl install apcu
@@ -98,12 +113,6 @@ RUN composer global require hirak/prestissimo
 #     && tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp \
 #     && mv /tmp/blackfire-*.so $(php -r "echo ini_get('extension_dir');")/blackfire.so \
 #     && printf "extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8707\n" > $PHP_INI_DIR/conf.d/blackfire.ini
-
-# Install node and npm
-RUN apt-get update && apt-get install -my wget gnupg
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
-RUN apt-get install -y nodejs
-RUN npm i -g webpack && npm i -g typescript && npm i -g yarn 
 
 # Configure sudoers for better dev experience ;-)
 RUN echo "Defaults umask=0002" >> /etc/sudoers \

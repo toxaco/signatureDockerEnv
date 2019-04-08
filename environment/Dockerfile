@@ -11,6 +11,13 @@ deb http://deb.debian.org/debian stretch-updates main non-free\
 deb http://deb.debian.org/debian stretch-backports main non-free\
 deb http://http.us.debian.org/debian stable main contrib non-free" > /etc/apt/sources.list
 
+# PDFTK
+RUN mkdir /usr/share/man/man1 
+COPY pdftk/pdftk-all.jar /pdftk.jar
+COPY pdftk/pdftk.sh /usr/bin/pdftk
+RUN chmod +x /usr/bin/pdftk
+
+# Install dependencies
 RUN apt-get update && apt-get install -y \
         ttf-mscorefonts-installer \
         git \
@@ -30,19 +37,17 @@ RUN apt-get update && apt-get install -y \
         libzip-dev \
         libicu-dev \
         g++ \
-	    poppler-utils
+	    poppler-utils \
+        openjdk-8-jdk \
+        libgd3 \
+        libgd-dev
 
+# Install + Configure PHP libraries
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
-RUN docker-php-ext-install -j$(nproc) gd
 RUN docker-php-ext-configure intl
-
-# Install Java
-RUN mkdir /usr/share/man/man1 && apt-get install -y openjdk-8-jdk
-
-# Install php libraries
 RUN pecl install mailparse
 RUN docker-php-ext-enable opcache mailparse
-RUN docker-php-ext-install \
+RUN docker-php-ext-install -j$(nproc) \
         bcmath \
         mysqli \
         pcntl \
@@ -52,12 +57,11 @@ RUN docker-php-ext-install \
         gd \
         soap \
         intl
-
 RUN yes '' | pecl install -f mcrypt
 RUN echo "extension=mcrypt.so" > /usr/local/etc/php/conf.d/mcrypt.ini
 RUN apt-get clean -y
 
-# Setup php
+# Setup PHP ini configs
 RUN echo "date.timezone=Europe/London" >>  /usr/local/etc/php/conf.d/signature.ini
 RUN echo "opcache.enable=1" >>  /usr/local/etc/php/conf.d/signature.ini
 RUN echo "opcache.max_accelerated_files=32531" >>  /usr/local/etc/php/conf.d/signature.ini
@@ -66,14 +70,13 @@ RUN echo "upload_max_filesize = 10M" >>  /usr/local/etc/php/conf.d/signature.ini
 RUN echo "post_max_size = 11M" >>  /usr/local/etc/php/conf.d/signature.ini
 RUN echo "memory_limit = 512M" >>  /usr/local/etc/php/conf.d/signature.ini
 
-
 # Install APCu
 RUN pecl install apcu
 RUN echo "extension=apcu.so" > /usr/local/etc/php/conf.d/apcu.ini
 
 # Install composer
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && php composer-setup.php --install-dir=/usr/local/bin --filename=composer
-RUN chmod +x /bin/composer
+RUN chmod +x /usr/local/bin/composer
 RUN composer global require hirak/prestissimo
 
 # Install xdebug

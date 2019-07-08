@@ -5,9 +5,11 @@ Simple docker structure to run Signature app.
 
 # Instructions:
 
+## Building from local image in `developt branch`
+
 - Download and install docker:
-``` 
-https://store.docker.com/search?type=edition&offering=community 
+```
+https://store.docker.com/search?type=edition&offering=community
 ```
 
 - Git clone this repo.
@@ -19,7 +21,7 @@ https://store.docker.com/search?type=edition&offering=community
 git clone ___pastYourUrlHere___ .
 ```
 
-- Execute this commands from your terminal (this will create your basic structure with proxy, mysql, etc. and start the app): 
+- Execute this commands from your terminal (this will create your basic structure with proxy, mysql, etc. and start the app):
 ```
 sudo ./provision_dev_docker.sh
 ```
@@ -50,15 +52,14 @@ docker exec -it signature bash
 
 # Monitoring and debugging
 
-- From your borwser you can access: **http://localhost:9900/** to open a docker management panel (Portainer). 
-	- The User is: admin 
+- From your borwser you can access: **http://localhost:9900/** to open a docker management panel (Portainer).
+	- The User is: admin
 	- The pass is: uhCg2Q9VXsCU
 	- Or just set your own.
-	
+
 - To use XDebugger you only need to set your IDE to listen to the domain dev.loan.co.uk from port 80 and set the absolute path on the server. (see image bellow for PHPStorm).
 
 ![PHPStorm Xdebugger setup](https://user-images.githubusercontent.com/13979220/31448225-d36886a0-ae9b-11e7-8ead-cc0c3b2e37aa.png)
-## Note that since may 2018 XDebugger has been removed from the default image. You will need to change the DockerFile to install that extension so you can use PHPStorm Debugger.
 
 # Speed Up
 

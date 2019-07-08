@@ -6,67 +6,7 @@ networks:
             name: dev
 
 services:
-    nginx-proxy:
-        image: jwilder/nginx-proxy:alpine
-        container_name: proxy
-        privileged: true
-        environment:
-            DEFAULT_HOST: "dev.loan.co.uk"
-            CERT_NAME: "dev"
-        ports:
-            - "80:80"
-            - "443:443"
-        volumes:
-            - /var/run/docker.sock:/tmp/docker.sock:cached #for Mac
-            - ./config/my_proxy.conf:/etc/nginx/conf.d/my_proxy.conf:cached #for Mac
-            - ./cert/:/etc/nginx/certs:cached #Update Dockerfile as well to make sure websockets works
-
-    elasticsearch:
-        image: docker.elastic.co/elasticsearch/elasticsearch:6.3.1
-        container_name: elasticsearch
-        privileged: true
-        ports:
-            - "9200:9200"
-    mysql:
-        image: mysql:5.7
-        container_name: mysql
-        ports:
-            - "3306:3306"
-        volumes:
-            - ./data/mysql:/var/lib/mysql:cached #for Mac
-            # Ensure MySql 5.7 is running in "disable strict SQL mod". [03/2018]
-            - ./config/mysqlConfig/:/etc/mysql/conf.d/:cached #for Mac
-        environment:
-            MYSQL_ROOT_PASSWORD: root
-
-    # redis:
-    #     image: redis:5-alpine
-    #     container_name: redis
-    #     ports:
-    #         - "6379:6379"
-
-    # mariadb:
-    #     image: mariadb
-    #     container_name: mariadb
-    #     restart: always
-    #     ports:
-    #         - "3307:3306"
-    #     volumes:
-    #         - ./data/mariadb:/var/lib/mysql:cached #for Mac
-    #         # Ensure MySql 5.7 is running in "disable strict SQL mod". [03/2018]
-    #         # - ./config/mysqlConfig/:/etc/mysql/conf.d/:cached #for Mac
-    #     environment:
-    #         MYSQL_ROOT_PASSWORD: root
-
-    portainer:
-        image: portainer/portainer
-        container_name: management
-        ports:
-            - "9900:9000"
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock:cached #for Mac
-            - ./data/portainer:/data:cached #for Mac
-
+  
     php:
         # image: toxaco/signaturedockerenv:latest #master branch
         build: ./ #develop branch
@@ -87,6 +27,68 @@ services:
            # - ./config/crontab:/etc/crontab:cached #for Mac
         command:
            - "/usr/bin/supervisord"
+
+    portainer:
+        image: portainer/portainer
+        container_name: management
+        ports:
+            - "9900:9000"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:cached #for Mac
+            - ./data/portainer:/data:cached #for Mac
+
+    nginx-proxy:
+        image: jwilder/nginx-proxy:alpine
+        container_name: proxy
+        privileged: true
+        environment:
+            DEFAULT_HOST: "dev.loan.co.uk"
+            CERT_NAME: "dev"
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - /var/run/docker.sock:/tmp/docker.sock:cached #for Mac
+            - ./config/my_proxy.conf:/etc/nginx/conf.d/my_proxy.conf:cached #for Mac
+            - ./cert/:/etc/nginx/certs:cached #Update Dockerfile as well to make sure websockets works
+
+    mysql:
+        image: mysql:5.7
+        container_name: mysql
+        ports:
+            - "3306:3306"
+        volumes:
+            - ./data/mysql:/var/lib/mysql:cached #for Mac
+            # Ensure MySql 5.7 is running in "disable strict SQL mod". [03/2018]
+            - ./config/mysqlConfig/:/etc/mysql/conf.d/:cached #for Mac
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+
+    elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:6.3.1
+        container_name: elasticsearch
+        privileged: true
+        ports:
+            - "9200:9200"
+
+    # redis:
+    #     image: redis:5-alpine
+    #     container_name: redis
+    #     ports:
+    #         - "6379:6379"
+
+    # mariadb:
+    #     image: mariadb
+    #     container_name: mariadb
+    #     restart: always
+    #     ports:
+    #         - "3307:3306"
+    #     volumes:
+    #         - ./data/mariadb:/var/lib/mysql:cached #for Mac
+    #         # Ensure MySql 5.7 is running in "disable strict SQL mod". [03/2018]
+    #         # - ./config/mysqlConfig/:/etc/mysql/conf.d/:cached #for Mac
+    #     environment:
+    #         MYSQL_ROOT_PASSWORD: root
 
     # blackfire:
     #     image: blackfire/blackfire

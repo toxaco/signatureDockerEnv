@@ -3,3 +3,7 @@ application/*
 
 jython/*
 !jython/.gitignore
+environment/data
+environment/cert
+!environment/cert/.gitkeep
+!environment/data/.gitkeep

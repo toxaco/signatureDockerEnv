@@ -33,7 +33,7 @@ case ${git_pull:0:1} in y|Y )
 
 	cd ./application
 	gitBranch=`git symbolic-ref --short -q HEAD`
-	branch="${gitBranch//[[:space:]]/}"		
+	branch="${gitBranch//[[:space:]]/}"
 	if [[ $branch = *[!\ ]* ]]; then
 		git pull origin $branch
 		git status
@@ -56,9 +56,16 @@ esac
 # Refresh docker containers.
 case ${restart:0:1} in y|Y )
 	printf "\n -----> Removing actual containers and starting new ones. \n\n"
-	docker-compose stop 
+	docker-compose stop
 	echo y | docker-compose rm -f $(docker ps -a -q)
 	docker-compose up -d --build
+
+	# cache admin system.
+	curl http://localhost:9900 > /dev/null 2>&1
+	rm -Rf  data/portainer
+	curl http://localhost:9900 > /dev/null 2>&1
+	curl http://localhost:9900 > /dev/null 2>&1
+
 esac
 
 # Execute scripts and install packages.
@@ -71,8 +78,12 @@ case ${run_packages:0:1} in y|Y )
 	docker exec -id signature sh -c "curl signature/app_dev.php && curl signature/app_dev.php" && sleep 40s
 esac
 
-
-
 # Wait to have the build finished the open app to cache dev.
 # open dev.loan.co.uk/app_dev.php
-printf "\n\n\n Ready! enjoy your day."
+printf "
+\n\n\n\n\n\n
+ALl done here! \n\n\n\n
+1. Go to 'http://localhost:9900' to administrate the environment. \n
+2. Make sure you have Signature cloned into "./../application"\n
+----------> like, share, comment if you like it ;)
+\n\n\n"

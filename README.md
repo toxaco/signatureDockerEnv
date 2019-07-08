@@ -1,11 +1,11 @@
+## Building from local image in `develop branch`
+
 # Signature Docker Env
 Simple docker structure to run Signature app.
 
 - Now using SSL (not by default, check provision_dev_docker.sh).
 
 # Instructions:
-
-## Building from local image in `developt branch`
 
 - Download and install docker:
 ```

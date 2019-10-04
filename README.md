@@ -19,6 +19,10 @@ https://store.docker.com/search?type=edition&offering=community
 git clone ___pastYourUrlHere___ .
 ```
 
+- At this point you should have an `application` and a `environment` folder in your project folder, plus the `provision_dev_docker.sh`.
+
+- Start Docker if not started before
+
 - Execute this commands from your terminal (this will create your basic structure with proxy, mysql, etc. and start the app): 
 ```
 sudo ./provision_dev_docker.sh
@@ -29,13 +33,15 @@ sudo ./provision_dev_docker.sh
 127.0.0.1       dev.loan.co.uk
 ```
 
+- Within application docker container run `composer install`.
+
 - Set up your MySql/Maria database using a previous dump.
 	- In you parameters.yml (signature app) the mysql_host should be: mysql (as it's pointing to the mysql container)
-	- Local Dabase access:
+	- Local Database access:
 		- user: root
 		- Pass: root
 
-- Finnaly don't forget to run from your command line Composer and NPM:
+- Finally don't forget to run from your command line Composer and NPM:
 
 Obs: If you need to access the machine (a.k.a SSH) for some reason, just type:
 ```
